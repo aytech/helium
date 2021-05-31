@@ -1,4 +1,3 @@
-
 conf = {
 
     # The Helium version number
@@ -8,13 +7,13 @@ conf = {
     'MAX_HELIUM_COINS': 21000000,
 
     # The smallest Helium currency unit in terms of one Helium coin
-    'HELIUM_CENT': 1/100000000,
+    'HELIUM_CENT': 1 / 100000000,
 
-    # The maximim size of a Helium block in bytes
+    # The maximum size of a Helium block in bytes
     'MAX_BLOCK_SIZE': 1000000,
 
     # The maximum amount of time in seconds that a transaction can be locked
-    'MAX_LOCKTIME': 30 * 1440 * 60,
+    'MAX_LOCK_TIME': 30 * 1440 * 60,
 
     # The maximum number of Inputs in a Helium Transaction
     'MAX_INPUTS': 10,
