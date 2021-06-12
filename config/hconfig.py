@@ -1,7 +1,7 @@
 conf = {
 
     # The Helium version number
-    'VERSION_NO': 1,
+    'VERSION_NO': "1",
 
     # The maximum number of Helium coins that can be mined
     'MAX_HELIUM_COINS': 21000000,

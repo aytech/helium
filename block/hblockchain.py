@@ -2,11 +2,11 @@ import json
 import logging
 import pickle
 
-import rcrypt
+from crypt import rcrypt
 
 from config import hconfig
 
-logging.basicConfig(filename="debug.log", filemode="w", format='%(asctime)s:%(levelname)s:%(message)s',
+logging.basicConfig(filename="debug.log", filemode="w", format="%(asctime)s:%(levelname)s:%(message)s",
                     level=logging.DEBUG)
 
 """
@@ -39,16 +39,16 @@ def add_block(block: dict) -> bool:
     try:
         # validate the received block parameters
         if not validate_block(block):
-            raise ValueError('Block validation error')
+            raise ValueError("Block validation error")
         # serialize the block to a file
         if not serialize_block(block):
-            raise ValueError('Serialize block error')
+            raise ValueError("Serialize block error")
         # Add the block to the blockchain in memory
         blockchain.append(block)
         return True
     except Exception as ex:
         print(str(ex))
-        logging.debug(f'Add block exception: {str(ex)}')
+        logging.debug(f"Add block exception: {str(ex)}")
         return False
 
 
@@ -57,15 +57,15 @@ def serialize_block(block: dict) -> bool:
     Serializes a block to a file using pickle. Returns True if the block is serialized and False otherwise.
     """
     index = len(blockchain)
-    filename = f'block_{str(index)}.dat'
+    filename = f"block_{str(index)}.dat"
 
     # create the block file and serialize the block
     try:
-        with open(filename, 'wb') as file:
+        with open(filename, "wb") as file:
             pickle.dump(block, file)
         return True
     except Exception as error:
-        logging.debug(f'Exception serializing the block: {error}')
+        logging.debug(f"Exception serializing the block: {error}")
         return False
 
 
@@ -77,7 +77,7 @@ def read_block(block_no: int) -> dict or False:
         block = blockchain[block_no]
         return block
     except Exception as error:
-        logging.debug(f'Exception reading block {error}')
+        logging.debug(f"Exception reading block {error}")
         return False
 
 
@@ -90,15 +90,15 @@ def block_header_hash(block: dict) -> str or False:
     """
     try:
         return rcrypt.make_sha256_hash(
-            block['version'] +
-            block['prev_block_hash'] +
-            block['merkle_root'] +
-            str(block['timestamp']) +
-            str(block['difficulty_bits']) +
-            str(block['nonce'])
+            block["version"] +
+            block["prev_block_hash"] +
+            block["merkle_root"] +
+            str(block["timestamp"]) +
+            str(block["difficulty_bits"]) +
+            str(block["nonce"])
         )
     except Exception as error:
-        logging.debug(f'Exception generating block header hash: {error}')
+        logging.debug(f"Exception generating block header hash: {error}")
         return False
 
 
@@ -109,59 +109,59 @@ def validate_block(block: dict) -> bool:
     """
     try:
         if type(block) != dict:
-            raise ValueError('Block type error')
+            raise ValueError("Block type error")
         # Validate scalar block attributes
-        if type(block['version']) != str:
-            raise ValueError('Block version type error')
-        if block['version'] != hconfig.conf['VERSION_NO']:
-            raise ValueError('Block wrong version')
-        if type(block['timestamp']) != int:
-            raise ValueError('Block timestamp value error')
-        if block['timestamp'] < 0:
-            raise ValueError('Block invalid timestamp')
-        if type(block['difficulty_bits']) != int:
-            raise ValueError('Block difficulty bits type error')
-        if block['difficulty_bits'] <= 0:
-            raise ValueError('Block difficulty bits is less then or equals 0')
-        if type(block['nonce']) != int:
-            raise ValueError('Block nonce type error')
-        if block['nonce'] != hconfig.conf['NONCE']:
-            raise ValueError('Block nonce is invalid')
-        if type(block['height']) != int:
-            raise ValueError('Block height type error')
-        if block['height'] < 0:
-            raise ValueError('Block height is less than 0')
-        if len(blockchain) == 0 and block['height'] != 0:
-            raise ValueError('Genesis block invalid height')
+        if type(block["version"]) != str:
+            raise ValueError("Block version type error")
+        if block["version"] != hconfig.conf["VERSION_NO"]:
+            raise ValueError("Block wrong version")
+        if type(block["timestamp"]) != int:
+            raise ValueError("Block timestamp value error")
+        if block["timestamp"] < 0:
+            raise ValueError("Block invalid timestamp")
+        if type(block["difficulty_bits"]) != int:
+            raise ValueError("Block difficulty bits type error")
+        if block["difficulty_bits"] <= 0:
+            raise ValueError("Block difficulty bits is less then or equals 0")
+        if type(block["nonce"]) != int:
+            raise ValueError("Block nonce type error")
+        if block["nonce"] != hconfig.conf["NONCE"]:
+            raise ValueError("Block nonce is invalid")
+        if type(block["height"]) != int:
+            raise ValueError("Block height type error")
+        if block["height"] < 0:
+            raise ValueError("Block height is less than 0")
+        if len(blockchain) == 0 and block["height"] != 0:
+            raise ValueError("Genesis block invalid height")
         if len(blockchain) > 0:
-            if block['height'] != blockchain[-1]['height'] + 1:
-                raise ValueError('Block height is not in order')
+            if block["height"] != blockchain[-1]["height"] + 1:
+                raise ValueError("Block height is not in order")
         # The length of the block must be less than the maximum block size that specified in the config module.
         # json.dumps converts the block into a json format string.
-        if len(json.dumps(block)) > hconfig.conf['MAX_BLOCK_SIZE']:
-            raise ValueError('Block length error')
+        if len(json.dumps(block)) > hconfig.conf["MAX_BLOCK_SIZE"]:
+            raise ValueError("Block length error")
         # Validate the merkle root
-        if block['merkle_root'] != merkle_root(block['tx'], True):
-            raise ValueError('merkle roots do not match')
+        if block["merkle_root"] != merkle_root(block["tx"], True):
+            raise ValueError("merkle roots do not match")
         # Validate the previous block by comparing message digests.
         # The genesis block does not have a predecessor block
-        if block['height'] > 0:
-            if block['prev_block_hash'] != block_header_hash(blockchain[block['height'] - 1]):
-                raise ValueError('Previous block header hash does not match')
-            else:
-                if block['prev_block_hash'] != '':
-                    raise ValueError('Genesis block has previous block hash!')
+        if block["height"] > 0:
+            if block["prev_block_hash"] != block_header_hash(blockchain[block["height"] - 1]):
+                raise ValueError("Previous block header hash does not match")
+        else:
+            if block["prev_block_hash"] != "":
+                raise ValueError("Genesis block has previous block hash!")
         # genesis block does not have any input transactions
-        if block['height'] == 0 and block['tx'][0]['vin'] != []:
-            raise ValueError('Missing coinbase transaction')
+        if block["height"] == 0 and block["tx"][0]["value_in"] != []:
+            raise ValueError("Missing coinbase transaction")
         # A block other than the genesis block must have at least
         # two transactions: the coinbase transaction and at least
         # one more transaction
-        if block['height'] > 0 and len(block['tx']) < 2:
-            raise ValueError('Block only has one transaction')
+        if block["height"] > 0 and len(block["tx"]) < 2:
+            raise ValueError("Block only has one transaction")
         return True
     except Exception as error:
-        logging.error(f'Exception validating the block: {error}')
+        logging.error(f"Exception validating the block: {error}")
         return False
 
 
